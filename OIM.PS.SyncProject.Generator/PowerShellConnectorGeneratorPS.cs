@@ -159,7 +159,8 @@ namespace OIM.PS.SyncProject.Generator
                                 new PCDefClassMethodCommandSequenceItem()
                                 {
                                     Command = $"{cls}Update",
-                                    Order = 1                                    
+                                    Order = 1,
+									Condition = "ModificationExists"
                                 }
                             }
                 }
