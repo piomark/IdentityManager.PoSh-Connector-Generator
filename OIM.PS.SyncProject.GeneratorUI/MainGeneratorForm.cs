@@ -70,7 +70,7 @@ namespace OIM.PS.SyncProject.GeneratorUI
 				{
 					var DLL = Assembly.LoadFrom(_multiThreaderFileName);
 				}
-				catch (Exception ex)
+				catch 
 				{
 					tabGenerate.Visible = false;
 				}
