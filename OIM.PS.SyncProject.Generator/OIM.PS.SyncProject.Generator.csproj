@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.2.0</Version>
+    <Version>1.2.2</Version>
     <Authors>Paul Sherman</Authors>
     <Company>One Identity LLC.</Company>
     <AssemblyVersion>1.2.2.0</AssemblyVersion>
@@ -18,8 +18,8 @@
     <ProjectReference Include="..\OIM.PS.SyncProject.Common\OIM.PS.SyncProject.Common.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)OIM.PS.SyncProject.GeneratorUI\bin\Debug\net5.0-windows\$(TargetFileName)" />
-  </Target>
+  </Target>-->
 
 </Project>
