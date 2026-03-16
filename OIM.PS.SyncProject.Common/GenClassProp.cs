@@ -71,5 +71,9 @@ namespace OIM.PS.SyncProject.Common
         public int OrderNumber { get; set; }
 		public bool IsCombinedPrimaryKey { get; set; }
 		public bool IncludeInCombinedPrimaryKey { get; set; }
-	}
+        public bool BindGetAll { get; set; }
+        public bool BindGet { get; set; }
+        public bool BindUpdate { get; set; }
+        public bool BindInsert { get; set; }
+    }
 }

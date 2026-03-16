@@ -266,29 +266,40 @@ namespace OIM.PS.SyncProject.Generator
         private static void PropertyReturnBindings(string cls, GenClassProp item, PCDefClassProperty prop)
         {
             //P.S. Return binding does not connect to XxxDelete
-            var bind = new List<PCDefClassPropertyReturnBindingsBind>()
-                    {
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}GetAll",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Get",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Insert",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Update",
-                            Path = item.PropertyName
-                        }
-                    };
+            var bind = new List<PCDefClassPropertyReturnBindingsBind>();
+
+            if (item.BindGetAll)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}GetAll",
+                    Path = item.PropertyName
+                });
+            }
+            if (item.BindGet)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Get",
+                    Path = item.PropertyName
+                });
+            }
+            if (item.BindInsert)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Insert",
+                    Path = item.PropertyName
+                });
+            }
+            if (item.BindUpdate)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Update",
+                    Path = item.PropertyName
+                });
+            }
 
             prop.Items.Add(new PCDefClassPropertyReturnBindings()
             {

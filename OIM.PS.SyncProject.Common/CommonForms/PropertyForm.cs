@@ -51,7 +51,11 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 				IsMultivalue = chkIsMultiValue.Checked,
 				IsRevision = chkIsRevision.Checked,
 				IsCombinedPrimaryKey = chkCombinedPrimary.Checked,
-				IncludeInCombinedPrimaryKey = chkIncludeInPrimary.Checked
+				IncludeInCombinedPrimaryKey = chkIncludeInPrimary.Checked,
+				BindGetAll = chkGetAll.Checked,
+				BindGet = chkGet.Checked,
+				BindUpdate = chkUpdate.Checked,
+				BindInsert = chkInsert.Checked
 			};
 
 			this.DialogResult = DialogResult.OK;

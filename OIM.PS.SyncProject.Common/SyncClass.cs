@@ -8,11 +8,16 @@ namespace OIM.PS.SyncProject.Common
 {
     public class SyncClass
     {
-        public SyncClass() { }
-        public SyncClass(string className, List<GenClassProp> properties)
+        public SyncClass() {
+            
+        }
+        public SyncClass(string className, List<GenClassProp> properties, bool canInsert, bool canUpdate, bool canDelete) 
         {
             ClassName = className;
-            Properties = properties;
+            Properties = properties; 
+            CanInsert = canInsert;
+            CanDelete = canDelete;
+            CanUpdate = canUpdate;
         }
         
         public string ClassName { get; set; }
@@ -52,5 +57,9 @@ namespace OIM.PS.SyncProject.Common
                 return sb.ToString().Trim().TrimEnd(',');
             }
         }
+
+        public bool CanInsert { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; }
     }
 }

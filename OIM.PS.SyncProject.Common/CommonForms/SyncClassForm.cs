@@ -29,7 +29,7 @@ namespace OIM.PS.SyncProject.Common
 			SyncClassForm frm = new SyncClassForm();
 			if (frm.ShowDialog() == DialogResult.OK)
 			{
-				ret = new SyncClass(frm.txtName.Text, frm._props);
+				ret = new SyncClass(frm.txtName.Text, frm._props, frm.chkInsert.Checked, frm.chkUpdate.Checked, frm.chkDelete.Checked);
 			}
 
 			return ret;
@@ -45,11 +45,14 @@ namespace OIM.PS.SyncProject.Common
 			frm._bindingSource.DataSource = frm._props.OrderBy(q => q.OrderNumber).ToList();
 			frm._bindingSource.ResetBindings(false);
 			frm.chkManyToMany.Checked = selSyncClass.IsManyToMany;
+			frm.chkInsert.Checked = selSyncClass.CanInsert;
+            frm.chkUpdate.Checked = selSyncClass.CanUpdate;
+            frm.chkDelete.Checked = selSyncClass.CanDelete;
 
-			//frm.ClearControls();
-			if (frm.ShowDialog() == DialogResult.OK)
+            //frm.ClearControls();
+            if (frm.ShowDialog() == DialogResult.OK)
 			{
-				ret = new SyncClass(frm.txtName.Text, frm._props);
+				ret = new SyncClass(frm.txtName.Text, frm._props, frm.chkInsert.Checked, frm.chkUpdate.Checked, frm.chkDelete.Checked);
 				ret.IsManyToMany = frm.chkManyToMany.Checked;
 			}
 
