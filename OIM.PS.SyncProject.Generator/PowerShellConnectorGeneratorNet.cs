@@ -105,7 +105,7 @@ namespace OIM.PS.SyncProject.Generator
                     PCDefClassProperty prop = CreateProperty(item);
 
                     PropertyModifiedBy(cls.ClassName, item, prop);
-                    PropertyCommandMapping(cls.ClassName, item, prop);
+                    PropertyCommandMapping(cls, item, prop);
                     PropertyReturnBindings(cls.ClassName, item, prop);
 
                     pcClass.Properties.Add(prop);
@@ -121,9 +121,12 @@ namespace OIM.PS.SyncProject.Generator
 
                 pcClass.MethodConfiguration = new List<PCDefClassMethod>() { };
                 //{
-                AddMethodConfigurationInsert(pcClass, cls.ClassName);
-                AddMethodConfigurationUpdate(pcClass, cls.ClassName);
-                AddMethodConfigurationDelete(pcClass, cls.ClassName);
+                if (cls.CanInsert)
+                    AddMethodConfigurationInsert(pcClass, cls.ClassName);
+                if (cls.CanUpdate)
+                    AddMethodConfigurationUpdate(pcClass, cls.ClassName);
+                if (cls.CanDelete)
+                    AddMethodConfigurationDelete(pcClass, cls.ClassName);
 
                 def.Schema.Add(pcClass);
             }
@@ -307,7 +310,7 @@ namespace OIM.PS.SyncProject.Generator
             });
         }
 
-        private static void PropertyCommandMapping(string cls, GenClassProp item, PCDefClassProperty prop)
+        private static void PropertyCommandMapping(SyncClass cls, GenClassProp item, PCDefClassProperty prop)
         {
             //P.S. - Command mapping. All fields map to commands except:
             //Primary Key - gets mapped to Update, Delete, Get
@@ -315,41 +318,50 @@ namespace OIM.PS.SyncProject.Generator
             //GetAll - no parameters get mapped.
             var map = new List<PCDefClassPropertyCommandMappingsMap>() { };
 
-            if (!(item.IsAutoFill || item.IsPrimaryKey))
+            if (!(item.IsAutoFill || item.IsPrimaryKey) && item.BindUpdate && cls.CanUpdate)
             {
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Update",
+                    ToCommand = $"{cls.ClassName}Update",
                     Parameter = item.PropertyName
                 });
+            }
 
+            if (!(item.IsAutoFill || item.IsPrimaryKey) && item.BindInsert && cls.CanInsert)
+            {
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Insert",
+                    ToCommand = $"{cls.ClassName}Insert",
                     Parameter = item.PropertyName
                 });
             }
 
             //P.S. "id" is mapped to Delete command. Nothing else
-            if (item.IsPrimaryKey == true)
+            if (item.IsPrimaryKey == true || item.IsCombinedPrimaryKey == true)
             {
-                map.Add(new PCDefClassPropertyCommandMappingsMap()
+                if (cls.CanDelete)
                 {
-                    ToCommand = $"{cls}Delete",
-                    Parameter = item.PropertyName
-                });
+                    map.Add(new PCDefClassPropertyCommandMappingsMap()
+                    {
+                        ToCommand = $"{cls.ClassName}Delete",
+                        Parameter = item.PropertyName
+                    });
+                }
 
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Get",
+                    ToCommand = $"{cls.ClassName}Get",
                     Parameter = item.PropertyName
                 });
 
-                map.Add(new PCDefClassPropertyCommandMappingsMap()
+                if (cls.CanUpdate)
                 {
-                    ToCommand = $"{cls}Update",
-                    Parameter = item.PropertyName
-                });
+                    map.Add(new PCDefClassPropertyCommandMappingsMap()
+                    {
+                        ToCommand = $"{cls.ClassName}Update",
+                        Parameter = item.PropertyName
+                    });
+                }
             }
 
             if (map.Count > 0)
@@ -365,7 +377,7 @@ namespace OIM.PS.SyncProject.Generator
         {
             //P.S. Only command XxxUpdate updates values.
             //But Auto Filled and PrimaryKey values don't get updated.            
-            if (!(item.IsAutoFill || item.IsPrimaryKey))
+            if (!(item.IsAutoFill || item.IsPrimaryKey || item.IsCombinedPrimaryKey) && item.BindUpdate)
             {
                 prop.Items.Add(new PCDefClassPropertyModifiedBy()
                 {
@@ -380,29 +392,41 @@ namespace OIM.PS.SyncProject.Generator
             }
         }
 
-        private static void GeneratePreDefinedCommands(PowershellConnectorDefinition def, string cls)
+        private static void GeneratePreDefinedCommands(PowershellConnectorDefinition def, SyncClass cls)
         {
-            def.Initialization.PredefinedCommands.AddRange(new List<PCDefInitializationCommand>()
+            if (cls.CanInsert)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
+                {
+                    Name = $"{cls.ClassName}Insert"
+                });
+            }
+
+            if (cls.CanUpdate)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
+                {
+                    Name = $"{cls.ClassName}Update"
+                });
+            }
+
+            if (cls.CanDelete)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
+                {
+                    Name = $"{cls.ClassName}Delete"
+                });
+            }
+
+            def.Initialization.PredefinedCommands.AddRange(new PCDefInitializationCommand[]
                 {
                     new PCDefInitializationCommand()
                     {
-                        Name = $"{cls}Insert"
+                        Name = $"{cls.ClassName}GetAll"
                     },
                     new PCDefInitializationCommand()
                     {
-                        Name = $"{cls}Update"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}Delete"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}GetAll"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}Get"
+                        Name = $"{cls.ClassName}Get"
                     }
                 });
         }
@@ -506,24 +530,32 @@ namespace OIM.PS.SyncProject.Generator
                     Value = GenerateGet(cls.ClassName)
                 });
 
-                //Check if there are no
-                def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                if (cls.CanInsert)
                 {
-                    Name = $"{cls.ClassName}Insert",
-                    Value = GenerateInsert(cls.ClassName, cls.Properties) //, cls.IsJoinClass)
-                });
+                    def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                    {
+                        Name = $"{cls.ClassName}Insert",
+                        Value = GenerateInsert(cls.ClassName, cls.Properties) //, cls.IsJoinClass)
+                    });
+                }
 
-                def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                if (cls.CanUpdate)
                 {
-                    Name = $"{cls.ClassName}Update",
-                    Value = GenerateUpdate(cls.ClassName, cls.Properties)
-                });
+                    def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                    {
+                        Name = $"{cls.ClassName}Update",
+                        Value = GenerateUpdate(cls.ClassName, cls.Properties)
+                    });
+                }
 
-                def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                if (cls.CanDelete)
                 {
-                    Name = $"{cls.ClassName}Delete",
-                    Value = GenerateDelete(cls.ClassName)
-                });
+                    def.Initialization.CustomCommands.Add(new PCDefInitializationCustomCommand()
+                    {
+                        Name = $"{cls.ClassName}Delete",
+                        Value = GenerateDelete(cls.ClassName)
+                    });
+                }
             }
         }
 
