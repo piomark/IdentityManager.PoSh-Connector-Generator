@@ -53,6 +53,7 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 			{
 				DataType = (DataTypes)System.Enum.Parse(typeof(DataTypes), cmbDataType.Text),
 				PropertyName = txtPropertyName.Text,
+				Path = txtPropertyName.Text,
 				IsPrimaryKey = chkIsPrimaryKey.Checked,
 				IsAutoFill = chkIsAutoFill.Checked,
 				IsDisplay = chkIsDisplay.Checked,

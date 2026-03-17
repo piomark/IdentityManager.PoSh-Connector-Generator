@@ -14,6 +14,7 @@ namespace OIM.PS.SyncProject.Common
         private bool _IsPrimaryKey;
         
         public string PropertyName { get; set; }
+        public string Path { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         public DataTypes DataType

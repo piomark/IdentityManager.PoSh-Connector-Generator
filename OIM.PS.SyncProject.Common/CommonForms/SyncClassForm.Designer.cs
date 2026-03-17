@@ -41,6 +41,7 @@ namespace OIM.PS.SyncProject.Common
             btnDown = new System.Windows.Forms.Button();
             chkManyToMany = new System.Windows.Forms.CheckBox();
             PropertyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            PathColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             DataType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             IsPrimaryKey = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             IsCombinedPrimaryKey = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -118,7 +119,7 @@ namespace OIM.PS.SyncProject.Common
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { PropertyName, DataType, IsPrimaryKey, IsCombinedPrimaryKey, IncludeInCombinedPrimaryKey, IsAutoFill, IsDisplay, IsMandatory, IsUniqueKey, IsMultiValue, IsRevision, BindGetAll, BindGet, BindUpdate, BindInsert });
+            dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { PropertyName, PathColumn, DataType, IsPrimaryKey, IsCombinedPrimaryKey, IncludeInCombinedPrimaryKey, IsAutoFill, IsDisplay, IsMandatory, IsUniqueKey, IsMultiValue, IsRevision, BindGetAll, BindGet, BindUpdate, BindInsert });
             dataGridView1.Location = new System.Drawing.Point(12, 94);
             dataGridView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             dataGridView1.Name = "dataGridView1";
@@ -196,7 +197,16 @@ namespace OIM.PS.SyncProject.Common
             PropertyName.MinimumWidth = 6;
             PropertyName.Name = "PropertyName";
             PropertyName.Width = 150;
-            // 
+            //
+            // PathColumn
+            //
+            PathColumn.DataPropertyName = "Path";
+            PathColumn.FillWeight = 150F;
+            PathColumn.HeaderText = "Path";
+            PathColumn.MinimumWidth = 6;
+            PathColumn.Name = "PathColumn";
+            PathColumn.Width = 150;
+            //
             // DataType
             // 
             DataType.DataPropertyName = "DataType";
@@ -418,6 +428,7 @@ namespace OIM.PS.SyncProject.Common
 		private System.Windows.Forms.Button btnDown;
 		private System.Windows.Forms.CheckBox chkManyToMany;
         private System.Windows.Forms.DataGridViewTextBoxColumn PropertyName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PathColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn DataType;
         private System.Windows.Forms.DataGridViewCheckBoxColumn IsPrimaryKey;
         private System.Windows.Forms.DataGridViewCheckBoxColumn IsCombinedPrimaryKey;

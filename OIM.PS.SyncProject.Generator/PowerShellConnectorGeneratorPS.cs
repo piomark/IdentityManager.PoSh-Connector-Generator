@@ -254,7 +254,7 @@ namespace OIM.PS.SyncProject.Generator
                 bind.Add(new PCDefClassPropertyReturnBindingsBind()
                 {
                     CommandResultOf = $"{cls}GetAll",
-                    Path = item.PropertyName
+                    Path = item.Path
                 });
             }
 
@@ -263,7 +263,7 @@ namespace OIM.PS.SyncProject.Generator
                 bind.Add(new PCDefClassPropertyReturnBindingsBind()
                 {
                     CommandResultOf = $"{cls}Get",
-                    Path = item.PropertyName
+                    Path = item.Path
                 });
             }
             if (item.BindInsert)
@@ -271,7 +271,7 @@ namespace OIM.PS.SyncProject.Generator
                 bind.Add(new PCDefClassPropertyReturnBindingsBind()
                 {
                     CommandResultOf = $"{cls}Create",
-                    Path = item.PropertyName
+                    Path = item.Path
                 });
             }
             if (item.BindUpdate)
@@ -279,7 +279,7 @@ namespace OIM.PS.SyncProject.Generator
                 bind.Add(new PCDefClassPropertyReturnBindingsBind()
                 {
                     CommandResultOf = $"{cls}Update",
-                    Path = item.PropertyName
+                    Path = item.Path
                 });
             }
 
