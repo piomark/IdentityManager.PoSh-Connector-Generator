@@ -69,6 +69,7 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 		private void PropertyForm_Load(object sender, EventArgs e)
 		{
 			cmbDataType.Text = "String";
+			chkGet.Checked = true;
 		}
 
 		private void btnCancel_Click(object sender, EventArgs e)
@@ -125,6 +126,7 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 			{
 				chkCombinedPrimary.Checked = false;
 				chkIncludeInPrimary.Checked = false;
+				chkGetAll.Checked = true;
 			}
 		}
 
