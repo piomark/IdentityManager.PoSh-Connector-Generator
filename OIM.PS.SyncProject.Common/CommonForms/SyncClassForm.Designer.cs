@@ -348,6 +348,7 @@ namespace OIM.PS.SyncProject.Common
             chkInsert.TabIndex = 24;
             chkInsert.Text = "Insert";
             chkInsert.UseVisualStyleBackColor = true;
+            chkInsert.CheckedChanged += chkInsert_CheckedChanged;
             // 
             // chkUpdate
             // 
@@ -359,6 +360,7 @@ namespace OIM.PS.SyncProject.Common
             chkUpdate.TabIndex = 24;
             chkUpdate.Text = "Update";
             chkUpdate.UseVisualStyleBackColor = true;
+            chkUpdate.CheckedChanged += chkUpdate_CheckedChanged;
             // 
             // chkDelete
             // 

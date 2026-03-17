@@ -65,6 +65,9 @@ namespace OIM.PS.SyncProject.Common
 			dataGridView1.AutoSize = false;
 
 			dataGridView1.DataSource = _bindingSource;
+
+			UpdateInsertColumnState();
+			UpdateUpdateColumnState();
 		}
 
 		private void btnAdd_Click(object sender, EventArgs e)
@@ -248,6 +251,42 @@ namespace OIM.PS.SyncProject.Common
 
 			}
 			catch { }
+		}
+
+		private void chkInsert_CheckedChanged(object sender, EventArgs e)
+		{
+			UpdateInsertColumnState();
+		}
+
+		private void chkUpdate_CheckedChanged(object sender, EventArgs e)
+		{
+			UpdateUpdateColumnState();
+		}
+
+		private void UpdateInsertColumnState()
+		{
+			BindInsert.ReadOnly = !chkInsert.Checked;
+			if (!chkInsert.Checked)
+			{
+				foreach (var prop in _props)
+				{
+					prop.BindInsert = false;
+				}
+				_bindingSource.ResetBindings(false);
+			}
+		}
+
+		private void UpdateUpdateColumnState()
+		{
+			BindUpdate.ReadOnly = !chkUpdate.Checked;
+			if (!chkUpdate.Checked)
+			{
+				foreach (var prop in _props)
+				{
+					prop.BindUpdate = false;
+				}
+				_bindingSource.ResetBindings(false);
+			}
 		}
 
 		private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
