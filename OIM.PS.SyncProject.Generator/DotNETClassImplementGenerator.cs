@@ -85,7 +85,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("");
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Put some code to do necessary cleanup.");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine("        public void Disconnect()");
             sb.AppendLine("        {");
             sb.AppendLine("");
@@ -220,7 +220,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        public List<{synClass.ClassName}> {synClass.ClassName}GetAll()");
             sb.AppendLine("        {");
             sb.AppendLine("");
@@ -232,7 +232,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
 
             //Work with multiple Primary Keys
 
@@ -260,7 +260,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        public {synClass.ClassName} {synClass.ClassName}Create({synClass.ClassName} {lclClass})");
             sb.AppendLine("        {");
             sb.AppendLine("");
@@ -330,7 +330,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
             sb.AppendLine("        /// Hashtable holds a list of modified fields and their new values");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        public {synClass.ClassName} {synClass.ClassName}Update({strPrimParams}, System.Collections.Hashtable updates)");
             sb.AppendLine("        {");
             sb.AppendLine($"            var {lclClass} = Get{synClass.ClassName}ById({strPrimParamsInd});");
@@ -348,7 +348,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        public void {synClass.ClassName}Delete({strPrimParams})");
             sb.AppendLine("        {");
             sb.AppendLine("");
@@ -368,7 +368,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
             sb.AppendLine("        /// Hashtable holds a list of modified fields and their new values");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        private void Update{synClass.ClassName}({synClass.ClassName} {lclClass}, System.Collections.Hashtable updates)");
             sb.AppendLine("        {");
 
@@ -424,7 +424,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
             sb.AppendLine("        /// Put real implementation here");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        private {synClass.ClassName} Get{synClass.ClassName}ById({strPrimParams})");
             sb.AppendLine("        {");
             sb.AppendLine("");
@@ -454,7 +454,7 @@ namespace OIM.PS.SyncProject.Generator
             //P.S. populate values
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Demo only!");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine($"        private void Populate{synClass.ClassName}s()");
             sb.AppendLine("        {");
             sb.AppendLine("");

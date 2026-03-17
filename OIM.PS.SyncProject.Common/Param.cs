@@ -15,22 +15,22 @@ namespace OIM.PS.SyncProject.Common
             Description = description;
             ParamName = paramName;
         }
-		public Param(string paramName, string description, bool isSensibleData)
-		{
-			Description = description;
-			ParamName = paramName;
-			IsSensibleData = isSensibleData;
-		}
+        public Param(string paramName, string description, bool isSensibleData)
+        {
+            Description = description;
+            ParamName = paramName;
+            IsSensibleData = isSensibleData;
+        }
 
-		public string ParamName { get; set; }
+        public string ParamName { get; set; }
         public string Description { get; set; }
 
-        private DataTypes dataType = DataTypes.String;
+        private DataTypes _dataType = DataTypes.String;
 
         public DataTypes DataType
         {
-            get { return dataType; }
-            set { dataType = value; }
+            get { return _dataType; }
+            set { _dataType = value; }
         }
         public bool IsSensibleData { get; set; }
     }

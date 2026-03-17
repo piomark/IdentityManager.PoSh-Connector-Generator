@@ -11,20 +11,13 @@ namespace OIM.PS.SyncProject.Generator
     {
         private string _nameSpace;
         private string _className;
-        //private Dictionary<string, string> _parameters;
-        //private Dictionary<string, GenClsProp[]> _classes;
-        private static Random _ran = new Random();
         private PSSyncMetadata _meta = new PSSyncMetadata();
 
         public DotNETClassGenerator(PSSyncMetadata metadata)
-                                        //Dictionary<string, string> parameters,
-                                        //Dictionary<string, GenClsProp[]> classes)
         {
             this._nameSpace = metadata.Namespace;
             this._className = metadata.ClassName;
             _meta = metadata;
-            //this._parameters = parameters;
-            //this._classes = classes;
         }
 
         public string GenerateDotNetClass()
@@ -80,7 +73,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("");
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Put some code to do necessary cleanup.");
-            sb.AppendLine("        /// <summary>");
+            sb.AppendLine("        /// </summary>");
             sb.AppendLine("        public void Disconnect()");
             sb.AppendLine("        {");
             sb.AppendLine("");
