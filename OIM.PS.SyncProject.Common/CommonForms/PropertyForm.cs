@@ -37,6 +37,12 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 
 		private void btnSave_Click(object sender, EventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace(txtPropertyName.Text))
+			{
+				MessageBox.Show("Property Name is a mandatory field");
+				return;
+			}
+
 			if (chkCombinedPrimary.Checked && cmbDataType.Text != "String")
 			{
 				MessageBox.Show("Data type for combined primary key must be 'String'");

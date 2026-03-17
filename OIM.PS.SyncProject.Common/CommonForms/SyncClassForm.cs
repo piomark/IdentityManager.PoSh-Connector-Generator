@@ -289,6 +289,38 @@ namespace OIM.PS.SyncProject.Common
 			}
 		}
 
+		private void dataGridView1_ColumnHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+		{
+			var column = dataGridView1.Columns[e.ColumnIndex];
+
+			if (column == BindGetAll)
+			{
+				bool newValue = _props.Any(p => !p.BindGetAll);
+				foreach (var prop in _props) prop.BindGetAll = newValue;
+			}
+			else if (column == BindGet)
+			{
+				bool newValue = _props.Any(p => !p.BindGet);
+				foreach (var prop in _props) prop.BindGet = newValue;
+			}
+			else if (column == BindUpdate && !BindUpdate.ReadOnly)
+			{
+				bool newValue = _props.Any(p => !p.BindUpdate);
+				foreach (var prop in _props) prop.BindUpdate = newValue;
+			}
+			else if (column == BindInsert && !BindInsert.ReadOnly)
+			{
+				bool newValue = _props.Any(p => !p.BindInsert);
+				foreach (var prop in _props) prop.BindInsert = newValue;
+			}
+			else
+			{
+				return;
+			}
+
+			_bindingSource.ResetBindings(false);
+		}
+
 		private void dataGridView1_RowEnter(object sender, DataGridViewCellEventArgs e)
 		{
 			////For editing

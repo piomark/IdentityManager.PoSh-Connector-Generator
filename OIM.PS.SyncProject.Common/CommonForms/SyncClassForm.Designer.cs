@@ -127,6 +127,7 @@ namespace OIM.PS.SyncProject.Common
             dataGridView1.Size = new System.Drawing.Size(1259, 319);
             dataGridView1.TabIndex = 7;
             dataGridView1.RowEnter += dataGridView1_RowEnter;
+            dataGridView1.ColumnHeaderMouseDoubleClick += dataGridView1_ColumnHeaderMouseDoubleClick;
             // 
             // btnAdd
             // 
