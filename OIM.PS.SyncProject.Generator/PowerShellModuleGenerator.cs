@@ -443,152 +443,162 @@ namespace OIM.PS.SyncProject.Generator
 			sb.AppendLine($"    return {synClass.ClassName}GetAll | Where-Object {{$_.{primProps[0].PropertyName} -eq ${primProps[0].PropertyName} }}");
             sb.AppendLine("");
             sb.AppendLine("}");
-            
-            
-            sb.AppendLine("");
-			//======================== CREATE =============================================================                       
-            sb.AppendLine($"function {synClass.ClassName}Create");
-            sb.AppendLine("{");
-            sb.AppendLine("    param(");
-            sb.AppendLine($"{strParams}");
-            sb.AppendLine("    )");
-            sb.AppendLine("");
-			sb.AppendLine("");
-			sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
-			sb.AppendLine("");
-			sb.AppendLine($"    ${synClass.ClassName.ToLower()} = [{synClass.ClassName}]::new()");
 
-			//P.S. --> For some reason Hashtable - @{} produces error in Create method. Have to use Class::new();
-			//sb.AppendLine($"    ${synClass.ClassName.ToLower()} = " + "@{}");
+            sb.AppendLine("");
 
-			foreach (var item in synClass.Properties)
-            {
-                if (item.DataType == DataTypes.Int)
-                {
-                    if (item.IsPrimaryKey)
-                    {
-                        sb.AppendLine($"    if(${synClass.ClassName.ToLower()}.{item.PropertyName} -eq 0)");
-                        sb.AppendLine("    {");
-                        sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = Get-Random");
-                        sb.AppendLine("    }");
-                        sb.AppendLine("    else");
-                        sb.AppendLine("    {");
-                        sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
-                        sb.AppendLine("    }");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
-                    }
-                }
-                else if (item.DataType == DataTypes.String)
-                {
-                    if (item.IsPrimaryKey)
-                    {
-                        sb.AppendLine($"    if([string]::IsNullOrEmpty(${item.PropertyName}))");
-                        sb.AppendLine("    {");
-                        sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = [System.guid]::NewGuid().toString()");
-                        sb.AppendLine("    }");
-                        sb.AppendLine("    else");
-                        sb.AppendLine("    {");
-                        sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
-                        sb.AppendLine("    }");
-                    }
-					else if (item.IsCombinedPrimaryKey)
+            //======================== CREATE =============================================================                       
+            if (synClass.CanInsert)
+			{								
+				sb.AppendLine($"function {synClass.ClassName}Create");
+				sb.AppendLine("{");
+				sb.AppendLine("    param(");
+				sb.AppendLine($"{strParams}");
+				sb.AppendLine("    )");
+				sb.AppendLine("");
+				sb.AppendLine("");
+				sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
+				sb.AppendLine("");
+				sb.AppendLine($"    ${synClass.ClassName.ToLower()} = [{synClass.ClassName}]::new()");
+
+				//P.S. --> For some reason Hashtable - @{} produces error in Create method. Have to use Class::new();
+				//sb.AppendLine($"    ${synClass.ClassName.ToLower()} = " + "@{}");
+
+				foreach (var item in synClass.Properties)
+				{
+					if (item.DataType == DataTypes.Int)
 					{
-						//P.S. this is for the Many-to-Many objects for which we create a combined primary key.
-						sb.AppendLine($"    if([string]::IsNullOrEmpty(${item.PropertyName}))");
-						sb.AppendLine("    {");
-						sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = " + BuildCombinedPrimaryKeyPoSh(synClass.Properties));
-						sb.AppendLine("    }");
-						sb.AppendLine("    else");
-						sb.AppendLine("    {");
-						sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
-						sb.AppendLine("    }");
+						if (item.IsPrimaryKey)
+						{
+							sb.AppendLine($"    if(${synClass.ClassName.ToLower()}.{item.PropertyName} -eq 0)");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = Get-Random");
+							sb.AppendLine("    }");
+							sb.AppendLine("    else");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
+							sb.AppendLine("    }");
+						}
+						else
+						{
+							sb.AppendLine($"${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
+						}
 					}
-                    else
-                    {
-                        sb.AppendLine($"    ${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
-                    }
-                }
-                else
-                {
-                    if (item.IsPrimaryKey)
-                    {
-                        throw new Exception($"Data Type {primProps[0].DataType} is not valid for primary key");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"    ${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
-                    }
-                    
-                }
-            }
-            sb.AppendLine("");
-			//sb.AppendLine($"    $script:{synClass.ClassName.ToLower()}s.Add(${synClass.ClassName.ToLower()})");
-			sb.AppendLine($"    $ret{synClass.ClassName} = SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'create' -{synClass.ClassName.ToLower()} ${synClass.ClassName.ToLower()} ");
+					else if (item.DataType == DataTypes.String)
+					{
+						if (item.IsPrimaryKey)
+						{
+							sb.AppendLine($"    if([string]::IsNullOrEmpty(${item.PropertyName}))");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = [System.guid]::NewGuid().toString()");
+							sb.AppendLine("    }");
+							sb.AppendLine("    else");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
+							sb.AppendLine("    }");
+						}
+						else if (item.IsCombinedPrimaryKey)
+						{
+							//P.S. this is for the Many-to-Many objects for which we create a combined primary key.
+							sb.AppendLine($"    if([string]::IsNullOrEmpty(${item.PropertyName}))");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} = " + BuildCombinedPrimaryKeyPoSh(synClass.Properties));
+							sb.AppendLine("    }");
+							sb.AppendLine("    else");
+							sb.AppendLine("    {");
+							sb.AppendLine($"      ${synClass.ClassName.ToLower()}.{item.PropertyName} =  ${item.PropertyName}");
+							sb.AppendLine("    }");
+						}
+						else
+						{
+							sb.AppendLine($"    ${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
+						}
+					}
+					else
+					{
+						if (item.IsPrimaryKey)
+						{
+							throw new Exception($"Data Type {primProps[0].DataType} is not valid for primary key");
+						}
+						else
+						{
+							sb.AppendLine($"    ${synClass.ClassName.ToLower()}.{item.PropertyName} = ${item.PropertyName}");
+						}
 
-			sb.AppendLine("");
-            sb.AppendLine($"    return $ret{synClass.ClassName}");    
+					}
+				}
+				sb.AppendLine("");
+				//sb.AppendLine($"    $script:{synClass.ClassName.ToLower()}s.Add(${synClass.ClassName.ToLower()})");
+				sb.AppendLine($"    $ret{synClass.ClassName} = SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'create' -{synClass.ClassName.ToLower()} ${synClass.ClassName.ToLower()} ");
 
-            sb.AppendLine("");
-            
-            sb.AppendLine("}");
-            sb.AppendLine("");
-            //====================== UPDATE ==============================================================
-            sb.AppendLine($"function {synClass.ClassName}Update");
-            sb.AppendLine("{");
-            sb.AppendLine("    param(");
-            sb.AppendLine($"{strParams}");
-            sb.AppendLine("    )");
-            sb.AppendLine("");
-			//sb.AppendLine($"  ${synClass.ClassName.ToLower()} =  $script:{synClass.ClassName.ToLower()}s | Where-Object {{$_.{primProps[0].PropertyName} -eq ${primProps[0].PropertyName} }}");
-			sb.AppendLine("");
-			sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
-			sb.AppendLine("");
-			sb.AppendLine($"  ${synClass.ClassName.ToLower()} = {synClass.ClassName}Get -{primProps[0].PropertyName} ${primProps[0].PropertyName}");
-			sb.AppendLine("");
+				sb.AppendLine("");
+				sb.AppendLine($"    return $ret{synClass.ClassName}");
 
-			foreach (var item in synClass.Properties)
-            {
-                if(item.IsPrimaryKey || item.IsCombinedPrimaryKey || item.IncludeInCombinedPrimaryKey)
-                {
-                    continue;
-                }
+				sb.AppendLine("");
 
-                string dataType = "";
-
-                if(item.IsMultivalue)
-                {
-                    dataType = $"{item.DataType.ToString()}[]";
-                }
-                else
-                {
-                    dataType = $"{item.DataType.ToString()}";
-                }
-
-                sb.AppendLine($"  if ($PSBoundParameters.ContainsKey('{item.PropertyName}')){{${synClass.ClassName.ToLower()}.{item.PropertyName} = [{dataType}]$PSBoundParameters['{item.PropertyName}']}}");
+				sb.AppendLine("}");
+				sb.AppendLine("");
 			}
-			sb.AppendLine("");
-			sb.AppendLine($"  $ret{synClass.ClassName} = SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'update' -{primProps[0].PropertyName} ${primProps[0].PropertyName}  -{synClass.ClassName.ToLower()} ${synClass.ClassName.ToLower()}");
-			sb.AppendLine($"  return $ret{synClass.ClassName}");
 
-			sb.AppendLine("}");
-            sb.AppendLine("");
+			//====================== UPDATE ==============================================================
+			if (synClass.CanUpdate)
+			{
+				sb.AppendLine($"function {synClass.ClassName}Update");
+				sb.AppendLine("{");
+				sb.AppendLine("    param(");
+				sb.AppendLine($"{strParams}");
+				sb.AppendLine("    )");
+				sb.AppendLine("");
+				//sb.AppendLine($"  ${synClass.ClassName.ToLower()} =  $script:{synClass.ClassName.ToLower()}s | Where-Object {{$_.{primProps[0].PropertyName} -eq ${primProps[0].PropertyName} }}");
+				sb.AppendLine("");
+				sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
+				sb.AppendLine("");
+				sb.AppendLine($"  ${synClass.ClassName.ToLower()} = {synClass.ClassName}Get -{primProps[0].PropertyName} ${primProps[0].PropertyName}");
+				sb.AppendLine("");
+
+				foreach (var item in synClass.Properties)
+				{
+					if (item.IsPrimaryKey || item.IsCombinedPrimaryKey || item.IncludeInCombinedPrimaryKey)
+					{
+						continue;
+					}
+
+					string dataType = "";
+
+					if (item.IsMultivalue)
+					{
+						dataType = $"{item.DataType.ToString()}[]";
+					}
+					else
+					{
+						dataType = $"{item.DataType.ToString()}";
+					}
+
+					sb.AppendLine($"  if ($PSBoundParameters.ContainsKey('{item.PropertyName}')){{${synClass.ClassName.ToLower()}.{item.PropertyName} = [{dataType}]$PSBoundParameters['{item.PropertyName}']}}");
+				}
+				sb.AppendLine("");
+				sb.AppendLine($"  $ret{synClass.ClassName} = SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'update' -{primProps[0].PropertyName} ${primProps[0].PropertyName}  -{synClass.ClassName.ToLower()} ${synClass.ClassName.ToLower()}");
+				sb.AppendLine($"  return $ret{synClass.ClassName}");
+
+				sb.AppendLine("}");
+				sb.AppendLine("");
+			}
+
 			//====================== DELETE ==============================================================
-
-			sb.AppendLine($"function {synClass.ClassName}Delete");
-            sb.AppendLine("{");
-            sb.AppendLine("    param(");
-            sb.AppendLine($"{strPrimParams}");
-            sb.AppendLine("    )");
-			sb.AppendLine("");
-			sb.AppendLine("");
-			sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
-			sb.AppendLine("");
-			sb.AppendLine($"     SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'delete' -{primProps[0].PropertyName} ${primProps[0].PropertyName} ${synClass.ClassName.ToLower()} | Out-Null");
-            sb.AppendLine("}");
-            sb.AppendLine("");
+			if (synClass.CanDelete)
+			{
+				sb.AppendLine($"function {synClass.ClassName}Delete");
+				sb.AppendLine("{");
+				sb.AppendLine("    param(");
+				sb.AppendLine($"{strPrimParams}");
+				sb.AppendLine("    )");
+				sb.AppendLine("");
+				sb.AppendLine("");
+				sb.AppendLine("    #===== This method's implementation is for demonstration purposes only. ======================");
+				sb.AppendLine("");
+				sb.AppendLine($"     SafeWrite{synClass.ClassName}ToJson -FilePath $script:{synClass.ClassName.ToLower()}FilePath -operation 'delete' -{primProps[0].PropertyName} ${primProps[0].PropertyName} ${synClass.ClassName.ToLower()} | Out-Null");
+				sb.AppendLine("}");
+				sb.AppendLine("");
+			}
 
 			//====================== Safe WRITE TO FILE ==============================================================
 

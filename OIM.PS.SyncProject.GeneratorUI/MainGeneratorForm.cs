@@ -196,6 +196,9 @@ namespace OIM.PS.SyncProject.GeneratorUI
 							if (rowData.ClassName == syncClass.ClassName)
 							{
 								rowData.IsManyToMany = syncClass.IsManyToMany;
+								rowData.CanInsert = syncClass.CanInsert;
+								rowData.CanUpdate = syncClass.CanUpdate;
+								rowData.CanDelete = syncClass.CanDelete;
 								rowData = syncClass;
 								break;
 							}
@@ -501,10 +504,12 @@ namespace OIM.PS.SyncProject.GeneratorUI
 
 		private void btnImportMetadata_Click(object sender, EventArgs e)
 		{
-			_meta = MetadataImprtForm.ImportMetadata(textBoxOutputFile.Text);
+			var tmp = MetadataImprtForm.ImportMetadata(textBoxOutputFile.Text);
 
-			if (_meta != null)
+			if (tmp != null)
 			{
+				_meta = tmp;
+
 				txtClassName.Text = _meta.ClassName;
 				txtNamespace.Text = _meta.Namespace;
 

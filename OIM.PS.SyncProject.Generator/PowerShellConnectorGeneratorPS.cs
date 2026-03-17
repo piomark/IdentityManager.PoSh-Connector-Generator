@@ -18,7 +18,7 @@ namespace OIM.PS.SyncProject.Generator
         public PSSyncMetadata _meta = new PSSyncMetadata();
         public PowerShellConnectorGeneratorPS(PSSyncMetadata metadata) //List<Param> parameters, Dictionary<string, GenClassProp[]> classes)
         {
-            _meta = metadata;            
+            _meta = metadata;
         }
 
         public PowershellConnectorDefinition GetConnectorDefinition()
@@ -37,21 +37,21 @@ namespace OIM.PS.SyncProject.Generator
 
             def.ConnectionParameters = new List<PCDefConnectionParameter>();
             def.ConnectionParameters.Add(new PCDefConnectionParameter() { Name = "PathToPowerShellModule", Description = "Path to PowerShell module" });
-			def.ConnectionParameters.Add(new PCDefConnectionParameter() { Name = "logToFile", Description = "If value is 'Y' or '1' or 'True' - will write debug messages to the log file" });
-			def.ConnectionParameters.Add(new PCDefConnectionParameter() { Name = "logFolder", Description = "Path to a folder where log files will be created" });
+            def.ConnectionParameters.Add(new PCDefConnectionParameter() { Name = "logToFile", Description = "If value is 'Y' or '1' or 'True' - will write debug messages to the log file" });
+            def.ConnectionParameters.Add(new PCDefConnectionParameter() { Name = "logFolder", Description = "Path to a folder where log files will be created" });
 
-			foreach (var item in _meta.Parameters)
+            foreach (var item in _meta.Parameters)
             {
-				var parDef = new PCDefConnectionParameter();
-				parDef.Name = item.ParamName;
-				parDef.Description = item.Description;
-				parDef.IsSensibleData = item.IsSensibleData;
-				parDef.IsSensibleDataSpecified = true;
+                var parDef = new PCDefConnectionParameter();
+                parDef.Name = item.ParamName;
+                parDef.Description = item.Description;
+                parDef.IsSensibleData = item.IsSensibleData;
+                parDef.IsSensibleDataSpecified = true;
 
 
-				def.ConnectionParameters.Add(parDef);
+                def.ConnectionParameters.Add(parDef);
 
-			}
+            }
 
 
             def.Initialization = new PCDefInitialization();
@@ -75,7 +75,7 @@ namespace OIM.PS.SyncProject.Generator
                 Name = "DisconnectUtils",
                 Value = disconUtils
             });
-			            
+
             GenerateEnvironmentInitializationConnect(def);
 
             //===============================================================================================
@@ -87,8 +87,8 @@ namespace OIM.PS.SyncProject.Generator
 
             foreach (var cls in _meta.SyncClasses)
             {
-                
-                GeneratePreDefinedCommands(def, cls.ClassName);
+
+                GeneratePreDefinedCommands(def, cls);
 
                 //============================================================
 
@@ -96,12 +96,12 @@ namespace OIM.PS.SyncProject.Generator
                 pcClass.Name = cls.ClassName;
                 pcClass.Properties = new List<PCDefClassProperty>();
 
-                foreach (var item in cls.Properties.OrderBy(q=>q.OrderNumber).ToList())
+                foreach (var item in cls.Properties.OrderBy(q => q.OrderNumber).ToList())
                 {
                     PCDefClassProperty prop = CreateProperty(item);
 
                     PropertyModifiedBy(cls.ClassName, item, prop);
-                    PropertyCommandMapping(cls.ClassName, item, prop);
+                    PropertyCommandMapping(cls, item, prop);
                     PropertyReturnBindings(cls.ClassName, item, prop);
 
                     pcClass.Properties.Add(prop);
@@ -117,9 +117,12 @@ namespace OIM.PS.SyncProject.Generator
 
                 pcClass.MethodConfiguration = new List<PCDefClassMethod>() { };
                 //{
-                AddMethodConfigurationInsert(pcClass, cls.ClassName);
-                AddMethodConfigurationUpdate(pcClass, cls.ClassName);
-                AddMethodConfigurationDelete(pcClass, cls.ClassName);
+                if (cls.CanInsert)
+                    AddMethodConfigurationInsert(pcClass, cls.ClassName);
+                if (cls.CanUpdate)
+                    AddMethodConfigurationUpdate(pcClass, cls.ClassName);
+                if (cls.CanDelete)
+                    AddMethodConfigurationDelete(pcClass, cls.ClassName);
 
                 def.Schema.Add(pcClass);
             }
@@ -141,7 +144,7 @@ namespace OIM.PS.SyncProject.Generator
                                 {
                                     Command = $"{cls}Delete",
                                     Order = 1
-                                }                                
+                                }
                             }
                 }
             });
@@ -160,7 +163,7 @@ namespace OIM.PS.SyncProject.Generator
                                 {
                                     Command = $"{cls}Update",
                                     Order = 1,
-									Condition = "ModificationExists"
+                                    Condition = "ModificationExists"
                                 }
                             }
                 }
@@ -182,7 +185,7 @@ namespace OIM.PS.SyncProject.Generator
                                     //They come from mapping.
                                     //We need to pass here some global values like authentication or so...
                                     Command = $"{cls}Create",
-                                    Order = 1                                   
+                                    Order = 1
                                 }
                             }
                 }
@@ -228,7 +231,7 @@ namespace OIM.PS.SyncProject.Generator
                 IsDisplay = item.IsDisplay,
                 IsMultivalue = item.IsMultivalue,
                 IsRevision = item.IsRevision,
-                Items = new List<object>()   
+                Items = new List<object>()
             };
 
             //P.S. Primary key is always unique
@@ -244,29 +247,41 @@ namespace OIM.PS.SyncProject.Generator
         private static void PropertyReturnBindings(string cls, GenClassProp item, PCDefClassProperty prop)
         {
             //P.S. Return binding does not connect to XxxDelete
-            var bind = new List<PCDefClassPropertyReturnBindingsBind>()
-                    {
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}GetAll",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Get",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Create",
-                            Path = item.PropertyName
-                        },
-                        new PCDefClassPropertyReturnBindingsBind()
-                        {
-                            CommandResultOf = $"{cls}Update",
-                            Path = item.PropertyName
-                        }
-                    };
+            var bind = new List<PCDefClassPropertyReturnBindingsBind>();
+
+            if (item.BindGetAll)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}GetAll",
+                    Path = item.PropertyName
+                });
+            }
+
+            if (item.BindGet)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Get",
+                    Path = item.PropertyName
+                });
+            }
+            if (item.BindInsert)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Create",
+                    Path = item.PropertyName
+                });
+            }
+            if (item.BindUpdate)
+            {
+                bind.Add(new PCDefClassPropertyReturnBindingsBind()
+                {
+                    CommandResultOf = $"{cls}Update",
+                    Path = item.PropertyName
+                });
+            }
 
             prop.Items.Add(new PCDefClassPropertyReturnBindings()
             {
@@ -274,7 +289,7 @@ namespace OIM.PS.SyncProject.Generator
             });
         }
 
-        private static void PropertyCommandMapping(string cls, GenClassProp item, PCDefClassProperty prop)
+        private static void PropertyCommandMapping(SyncClass cls, GenClassProp item, PCDefClassProperty prop)
         {
             //P.S. - Command mapping. All fields map to commands except:
             //Primary Key - gets mapped to Update, Delete, Get
@@ -282,17 +297,20 @@ namespace OIM.PS.SyncProject.Generator
             //GetAll - no parameters get mapped.
             var map = new List<PCDefClassPropertyCommandMappingsMap>() { };
 
-            if (!(item.IsAutoFill || item.IsPrimaryKey))
+            if (!(item.IsAutoFill || item.IsPrimaryKey) && item.BindUpdate && cls.CanUpdate)
             {
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Update",
+                    ToCommand = $"{cls.ClassName}Update",
                     Parameter = item.PropertyName
                 });
+            }
 
+            if (!(item.IsAutoFill || item.IsPrimaryKey) && item.BindInsert && cls.CanInsert)
+            {
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Create",
+                    ToCommand = $"{cls.ClassName}Create",
                     Parameter = item.PropertyName
                 });
             }
@@ -300,23 +318,29 @@ namespace OIM.PS.SyncProject.Generator
             //P.S. "id" is mapped to Delete command. Nothing else
             if (item.IsPrimaryKey == true || item.IsCombinedPrimaryKey == true)
             {
-                map.Add(new PCDefClassPropertyCommandMappingsMap()
+                if (cls.CanDelete)
                 {
-                    ToCommand = $"{cls}Delete",
-                    Parameter = item.PropertyName
-                });
+                    map.Add(new PCDefClassPropertyCommandMappingsMap()
+                    {
+                        ToCommand = $"{cls.ClassName}Delete",
+                        Parameter = item.PropertyName
+                    });
+                }
 
                 map.Add(new PCDefClassPropertyCommandMappingsMap()
                 {
-                    ToCommand = $"{cls}Get",
+                    ToCommand = $"{cls.ClassName}Get",
                     Parameter = item.PropertyName
                 });
 
-                map.Add(new PCDefClassPropertyCommandMappingsMap()
+                if (cls.CanUpdate)
                 {
-                    ToCommand = $"{cls}Update",
-                    Parameter = item.PropertyName
-                });
+                    map.Add(new PCDefClassPropertyCommandMappingsMap()
+                    {
+                        ToCommand = $"{cls.ClassName}Update",
+                        Parameter = item.PropertyName
+                    });
+                }
             }
 
             if (map.Count > 0)
@@ -332,7 +356,7 @@ namespace OIM.PS.SyncProject.Generator
         {
             //P.S. Only command XxxUpdate updates values.
             //But Auto Filled and PrimaryKey values don't get updated.            
-            if (!(item.IsAutoFill || item.IsPrimaryKey || item.IsCombinedPrimaryKey))
+            if (!(item.IsAutoFill || item.IsPrimaryKey || item.IsCombinedPrimaryKey) && item.BindUpdate)
             {
                 prop.Items.Add(new PCDefClassPropertyModifiedBy()
                 {
@@ -347,29 +371,41 @@ namespace OIM.PS.SyncProject.Generator
             }
         }
 
-        private static void GeneratePreDefinedCommands(PowershellConnectorDefinition def, string cls)
+        private static void GeneratePreDefinedCommands(PowershellConnectorDefinition def, SyncClass cls)
         {
-            def.Initialization.PredefinedCommands.AddRange(new List<PCDefInitializationCommand>()
+            if (cls.CanInsert)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
                 {
+                    Name = $"{cls.ClassName}Create"
+                });
+            }
+
+            if (cls.CanUpdate)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
+                {
+                    Name = $"{cls.ClassName}Update"
+                });
+            }
+
+            if (cls.CanDelete)
+            {
+                def.Initialization.PredefinedCommands.Add(new PCDefInitializationCommand()
+                {
+                    Name = $"{cls.ClassName}Delete"
+                });
+            }
+
+            def.Initialization.PredefinedCommands.AddRange(new PCDefInitializationCommand[]
+                 {
                     new PCDefInitializationCommand()
                     {
-                        Name = $"{cls}Create"
+                        Name = $"{cls.ClassName}GetAll"
                     },
                     new PCDefInitializationCommand()
                     {
-                        Name = $"{cls}Update"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}Delete"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}GetAll"
-                    },
-                    new PCDefInitializationCommand()
-                    {
-                        Name = $"{cls}Get"
+                        Name = $"{cls.ClassName}Get"
                     }
                 });
         }
@@ -508,7 +544,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("           [parameter(Mandatory =$true, ValueFromPipelineByPropertyName =$true)] ");
             sb.AppendLine("           [ValidateNotNullOrEmpty()] ");
             sb.Append("           [String]$PathToPowerShellModule ");
-                       
+
             if (_meta.Parameters.Count == 0)
             {
                 sb.AppendLine("");
@@ -545,7 +581,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("");
             sb.AppendLine("        <![CDATA[");
             sb.AppendLine("           param( ");
-            
+
             SyncClass cls = _meta.GetClassByName(className);
             List<GenClassProp> props = cls.Properties.Where(q => q.IsPrimaryKey || q.IsCombinedPrimaryKey).ToList();
             if (props == null || props.Count == 0)
@@ -648,7 +684,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("        param( ");
 
             foreach (var field in fields)
-            {                
+            {
                 //P.S. We do need to pass Primary Key to the command.
                 //But we don't need to pass AutoFill fields
                 //because we don't update them.
@@ -657,7 +693,7 @@ namespace OIM.PS.SyncProject.Generator
                     continue;
                 }
 
-                if(field.IsPrimaryKey || field.IsCombinedPrimaryKey)
+                if (field.IsPrimaryKey || field.IsCombinedPrimaryKey)
                 {
                     sbDll.Append($"${field.PropertyName},");
                 }
@@ -667,7 +703,7 @@ namespace OIM.PS.SyncProject.Generator
                 if (field.IsMandatory || field.IsPrimaryKey || field.IsCombinedPrimaryKey)
                 {
                     sb.AppendLine("           [ValidateNotNullOrEmpty()] ");
-                }                
+                }
 
                 if (field.IsMultivalue)
                 {
@@ -677,9 +713,9 @@ namespace OIM.PS.SyncProject.Generator
                 {
                     sb.Append($"           [{field.DataType}]${field.PropertyName}");
                 }
-                
+
                 sb.AppendLine(",");
-                
+
                 sb.AppendLine("");
             }
 
@@ -705,7 +741,7 @@ namespace OIM.PS.SyncProject.Generator
             sb.AppendLine("");
             sb.AppendLine("        <![CDATA[");
             sb.AppendLine("           param( ");
-            
+
             SyncClass cls = _meta.GetClassByName(className);
             List<GenClassProp> props = cls.Properties.Where(q => q.IsPrimaryKey || q.IsCombinedPrimaryKey).ToList();
             if (props == null || props.Count == 0)
@@ -746,18 +782,18 @@ namespace OIM.PS.SyncProject.Generator
 
         //P.S. For joint class we need to create new class with PrimaryKeys.
         private string GenerateCreate(string className, List<GenClassProp> fields) //, bool isJointClass)
-        {            
+        {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("");
             sb.AppendLine("        <![CDATA[");
             sb.AppendLine("          param( ");
 
             foreach (var field in fields)
-            {                
+            {
                 //P.S. We don't need to pass Auto Generated ke if it is not a Primary Key to 'Create' function
                 if (field.IsAutoFill && !(field.IsPrimaryKey || field.IsCombinedPrimaryKey))
                 {
-                    continue;                    
+                    continue;
                 }
 
                 sb.AppendLine("           [parameter(Mandatory =$false, ValueFromPipelineByPropertyName =$true)] ");
@@ -777,7 +813,7 @@ namespace OIM.PS.SyncProject.Generator
                 }
 
                 sb.AppendLine(",");
-                
+
                 sb.AppendLine("");
             }
 
@@ -795,12 +831,12 @@ namespace OIM.PS.SyncProject.Generator
             foreach (var field in fields)
             {
                 //P.S. We don't need to pass Auto Generated key if it is not a Primary Key to 'Create' function
-                if (field.IsAutoFill && !(field.IsPrimaryKey || field.IsCombinedPrimaryKey) )
+                if (field.IsAutoFill && !(field.IsPrimaryKey || field.IsCombinedPrimaryKey))
                 {
-                    continue;                    
+                    continue;
                 }
 
-                sb.AppendLine($"         $inst.{field.PropertyName}=${field.PropertyName}");                
+                sb.AppendLine($"         $inst.{field.PropertyName}=${field.PropertyName}");
             }
 
             sb.AppendLine("");

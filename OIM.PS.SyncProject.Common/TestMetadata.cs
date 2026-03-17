@@ -36,7 +36,7 @@ namespace OIM.PS.SyncProject.Common
                     new GenClassProp() {PropertyName="UserName", IsMandatory = true, IsDisplay = true},
                     new GenClassProp() {PropertyName="IsActive", IsMandatory = true, DataType = DataTypes.Bool},
                     new GenClassProp() {PropertyName="StartDate", IsMandatory = true, DataType = DataTypes.DateTime}
-                }));
+                },true,true,true));
 
             _meta.SyncClasses.Add(new SyncClass("Group",
                 new List<GenClassProp>()
@@ -48,7 +48,7 @@ namespace OIM.PS.SyncProject.Common
                     new GenClassProp(){ PropertyName = "GroupName", IsMandatory = true, IsDisplay = true },
                     new GenClassProp() {PropertyName="Description"},
                     new GenClassProp() {PropertyName="IsActive", IsMandatory = true, DataType = DataTypes.Bool}
-                }));
+                },true,true,true));
 
             _meta.SyncClasses.Add(new SyncClass("UserInGroup",
                 new List<GenClassProp>()
@@ -65,7 +65,7 @@ namespace OIM.PS.SyncProject.Common
                     {
                         PropertyName = "Description",  IsDisplay = true
                     }
-                }));
+                },true,true,true                ));
 
             return _meta;
         }
