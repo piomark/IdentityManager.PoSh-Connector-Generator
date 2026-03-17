@@ -74,7 +74,7 @@ namespace OIM.PS.SyncProject.Common
 		{
 			//P.S. We allow multiple primary keys. For example UserInGroup relation.
 
-			GenClassProp prop = PropertyForm.AddPProperty();
+			GenClassProp prop = PropertyForm.AddPProperty(chkInsert.Checked, chkUpdate.Checked);
 
 			if (prop == null)
 			{

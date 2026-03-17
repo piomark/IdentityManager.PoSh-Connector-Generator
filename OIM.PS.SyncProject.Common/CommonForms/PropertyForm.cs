@@ -19,10 +19,14 @@ namespace OIM.PS.SyncProject.Common.CommonForms
 			InitializeComponent();
 		}
 
-		public static GenClassProp AddPProperty()
+		public static GenClassProp AddPProperty(bool canInsert = true, bool canUpdate = true)
 		{
 			GenClassProp ret = null;
 			PropertyForm frm = new PropertyForm();
+			frm.chkInsert.Enabled = canInsert;
+			frm.chkUpdate.Enabled = canUpdate;
+			if (!canInsert) frm.chkInsert.Checked = false;
+			if (!canUpdate) frm.chkUpdate.Checked = false;
 			if (frm.ShowDialog() == DialogResult.OK)
 			{
 				ret = frm._prop;
