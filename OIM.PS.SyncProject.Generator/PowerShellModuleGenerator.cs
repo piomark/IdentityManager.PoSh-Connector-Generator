@@ -193,6 +193,12 @@ namespace OIM.PS.SyncProject.Generator
             }
 			//P.S. END Classes ==================================================
 
+			//P.S. Add XML Parsing functions
+			foreach (var item in _meta.SyncClasses)
+			{
+				sb.AppendLine(GenerateXmlParseFunction(item));
+			}
+
 			//P.S. Add Logging function
 			sb.AppendLine(GenerateLoggingFunction());
 
@@ -205,6 +211,47 @@ namespace OIM.PS.SyncProject.Generator
 			return ret;
             
         }
+
+		private string GenerateXmlParseFunction(SyncClass synClass)
+		{
+			StringBuilder sb = new StringBuilder();
+			string cls = synClass.ClassName;
+			string lclList = $"{cls.ToLower()}s";
+
+			sb.AppendLine($"function Parse{cls}Xml");
+			sb.AppendLine("{");
+			sb.AppendLine("    param(");
+			sb.AppendLine("        [parameter(Mandatory=$true)]");
+			sb.AppendLine("        [xml]$XmlData,");
+			sb.AppendLine("");
+			sb.AppendLine("        [parameter(Mandatory=$false)]");
+			sb.AppendLine("        [string]$NodeXPath = \"//" + cls + "\"");
+			sb.AppendLine("    )");
+			sb.AppendLine("");
+			sb.AppendLine($"    ${lclList} = @()");
+			sb.AppendLine($"    foreach ($node in $XmlData.SelectNodes($NodeXPath))");
+			sb.AppendLine("    {");
+			sb.AppendLine($"        $obj = [{cls}]::new()");
+			sb.AppendLine("        foreach ($prop in $obj.PSObject.Properties)");
+			sb.AppendLine("        {");
+			sb.AppendLine("            $xmlNode = $node.SelectSingleNode($prop.Name)");
+			sb.AppendLine("            if ($xmlNode)");
+			sb.AppendLine("            {");
+			sb.AppendLine("                try {");
+			sb.AppendLine("                    $obj.($prop.Name) = $xmlNode.InnerText");
+			sb.AppendLine("                } catch {");
+			sb.AppendLine("                    Write-Log -Message \"Parse" + cls + "Xml - Could not set property '$($prop.Name)': $_\" -Level WARN");
+			sb.AppendLine("                }");
+			sb.AppendLine("            }");
+			sb.AppendLine("        }");
+			sb.AppendLine($"        ${lclList} += $obj");
+			sb.AppendLine("    }");
+			sb.AppendLine($"    return ${lclList}");
+			sb.AppendLine("}");
+			sb.AppendLine("");
+
+			return sb.ToString();
+		}
 
 		private string GenerateLoggingFunction()
 		{
